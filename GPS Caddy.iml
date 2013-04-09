@@ -13,6 +13,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="HoloEverywhere" />
+    <orderEntry type="module" module-name="ActionBarSherlock" />
   </component>
 </module>
 

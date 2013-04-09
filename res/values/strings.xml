@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GPS Caddy</string>
+    <string name="clubs_button">Clubs</string>
+    <string name="maps_button">Course Map</string>
+    <string name="swing_button">Record Swing</string>
+    <string name="course_button">Select Course</string>
 </resources>
