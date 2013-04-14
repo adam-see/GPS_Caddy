@@ -20,8 +20,7 @@
             android:text="@string/clubs_button"
             android:background="@drawable/blue_button"
             android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:onClick="onBtnClick"/>
+            android:layout_marginRight="5dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -37,8 +36,7 @@
             android:text="@string/maps_button"
             android:background="@drawable/blue_button"
             android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:onClick="onBtnClick"/>
+            android:layout_marginRight="5dp"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="fill_parent"
@@ -53,8 +51,7 @@
             android:text="@string/course_button"
             android:background="@drawable/blue_button"
             android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:onClick="onBtnClick"/>
+            android:layout_marginRight="5dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -70,7 +67,6 @@
             android:text="@string/swing_button"
             android:background="@drawable/blue_button"
             android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:onClick="onBtnClick"/>
+            android:layout_marginRight="5dp"/>
     </LinearLayout>
 </LinearLayout>

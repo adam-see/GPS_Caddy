@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/mainLayout"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent">
+        <TextView
+            android:id="@+id/teeBoxDistTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingLeft="2dp"
+            android:text="@string/start_not_set"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/background_holo_dark"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="16dp"/>
+
+        <TextView
+            android:id="@+id/distanceTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingLeft="2dp"
+            android:text="@string/def_marker_yds"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/background_holo_dark"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="16dp"/>
+    </LinearLayout>
+
+    <fragment
+              android:id="@+id/map"
+              android:layout_width="match_parent"
+              android:layout_height="0dp"
+              android:layout_weight="0.5"
+              class="com.google.android.gms.maps.SupportMapFragment"/>
+
+    <LinearLayout
+        android:id="@+id/footer"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent">
+
+        <org.holoeverywhere.widget.Button
+            android:id="@+id/btnHome"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/home_button"
+            android:background="@drawable/blue_button"
+            android:textSize="14sp"
+            android:padding="4dp"
+            />
+        <org.holoeverywhere.widget.Button
+            android:id="@+id/btnCenter"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/center_button"
+            android:background="@drawable/blue_button"
+            android:textSize="14sp"
+            android:layout_gravity="center"
+            android:padding="4dp"/>
+        <org.holoeverywhere.widget.Button
+            android:id="@+id/btnStartPnt"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/start_point_btn"
+            android:background="@drawable/blue_button"
+            android:textSize="14sp"
+            android:layout_gravity="center"
+            android:padding="4dp"/>
+        <org.holoeverywhere.widget.Button
+            android:id="@+id/btnAverage"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/save_to_avg_btn"
+            android:background="@drawable/blue_button"
+            android:textSize="14sp"
+            android:layout_gravity="center"
+            android:padding="4dp"/>
+
+        </LinearLayout>
+</LinearLayout>
