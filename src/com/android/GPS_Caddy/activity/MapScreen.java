@@ -1,12 +1,27 @@
 package com.android.GPS_Caddy.activity;
 
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
+import android.view.View;
 import com.android.GPS_Caddy.R;
 import android.support.v4.app.FragmentActivity;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.model.*;
+import com.google.android.maps.GeoPoint;
+import org.holoeverywhere.widget.Button;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,8 +30,30 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * Time: 11:47 PM
  * To change this template use File | Settings | File Templates.
  */
-public class MapScreen extends FragmentActivity {
+public class MapScreen extends FragmentActivity implements View.OnClickListener, LocationListener {
     private GoogleMap mMap;
+    private Button btnHome;
+    private Button btnCenter;
+    private Button btnStartPoint;
+    private Button btnAverage;
+    private LocationManager locationManager;
+    private boolean gpsServiceEnabled = false;
+    private Typeface tf;
+    private String provider;
+    private LatLng currLatLng;
+    private Location location;
+    private LocationSource.OnLocationChangedListener mListener;
+    private Criteria criteria;
+    private Marker setMarker;
+    private Location currLocation;
+    private Location placedLocation;
+    private Location holeLocation;
+    private Polyline placedPolyLine;
+    private List<LatLng> pointsToDestination;
+
+    private static final int DEF_ZOOM = 18;
+    private static final int MIN_TIME = 100;
+    private static final int MIN_DISTANCE = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -26,13 +63,43 @@ public class MapScreen extends FragmentActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        locationManager.removeUpdates(this);
+        mMap.setMyLocationEnabled(false);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        locationManager.requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, this);
+        mMap.setMyLocationEnabled(true);
     }
 
     private void initControls() {
+        tf = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
+        btnHome = (Button) findViewById(R.id.btnHome);
+        btnAverage = (Button) findViewById(R.id.btnAverage);
+        btnCenter = (Button) findViewById(R.id.btnCenter);
+        btnStartPoint = (Button) findViewById(R.id.btnStartPnt);
+        currLocation = new Location("curr_location");
+        placedLocation = new Location("placed_location");
+        holeLocation = new Location("hole_location");
+        pointsToDestination = new ArrayList<LatLng>();
+
+        btnHome.setTypeface(tf);
+        btnAverage.setTypeface(tf);
+        btnCenter.setTypeface(tf);
+        btnStartPoint.setTypeface(tf);
+
+        btnHome.setOnClickListener(this);
+        btnAverage.setOnClickListener(this);
+        btnCenter.setOnClickListener(this);
+        btnStartPoint.setOnClickListener(this);
+
         setUpMapIfNeeded();
+        isServiceEnabled();
     }
 
     /**
@@ -55,6 +122,7 @@ public class MapScreen extends FragmentActivity {
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
@@ -69,6 +137,143 @@ public class MapScreen extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+//        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        gpsServiceEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        // Get the location manager
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // Define the criteria how to select the location in provider -> use default
+        criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        provider = locationManager.getBestProvider(criteria, false);
+        location = locationManager.getLastKnownLocation(provider);
+        if (location != null) {
+            currLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currLatLng, DEF_ZOOM));
+        }
+        else {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), DEF_ZOOM));
+        }
+        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        mMap.setTrafficEnabled(false);
+
+        //add map listener
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if (setMarker != null) {
+                    //Get the two locations for distance
+                    placedLocation.setLatitude(latLng.latitude);
+                    placedLocation.setLongitude(latLng.longitude);
+                    double distance = getDistance(placedLocation, currLocation);
+                    String distanceFormat = String.format("%.1f", distance);
+                    setMarker.setPosition(latLng);
+                    setMarker.setSnippet(distanceFormat);
+                    setMarker.showInfoWindow();
+
+                    //Move the line with the points
+                    List<LatLng> pointsToDestination = new ArrayList<LatLng>();
+                    pointsToDestination.add(new LatLng(placedLocation.getLatitude(), placedLocation.getLongitude()));
+                    pointsToDestination.add(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()));
+                    placedPolyLine.setPoints(pointsToDestination);
+                }
+                else {
+                    if (currLocation.getLatitude() == 0.0 && currLocation.getLongitude() == 0.0) {
+                        currLocation = location;
+                    }
+                    //Get the two locations for distance
+                    placedLocation.setLatitude(latLng.latitude);
+                    placedLocation.setLongitude(latLng.longitude);
+
+                    //Calculate the distance in yards and set the marker
+                    double distance = getDistance(placedLocation, currLocation);
+                    String distanceFormat = String.format("%.1f", distance);
+                    setMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Yards").snippet(distanceFormat));
+                    setMarker.showInfoWindow();
+
+                    //Draw a line between the points
+                    placedPolyLine = mMap.addPolyline(new PolylineOptions().
+                            add(latLng, new LatLng(currLocation.getLatitude(), currLocation.getLongitude())).width(3).color(Color.RED));
+                }
+            }
+        });
+    }
+
+    /**
+     * Calculate the distance between two raw locations
+     * @param location1
+     * @param location2
+     * @return The distance in yards between the two points
+     */
+    private double getDistance(Location location1, Location location2)
+    {
+        double distance;
+        final double METERS_IN_YARD = 1.0936133;
+        GeoPoint point1 = new GeoPoint((int) (location1.getLatitude() * 1E6), (int) (location1.getLongitude() * 1E6));
+        GeoPoint point2 = new GeoPoint((int) (location2.getLatitude() * 1E6), (int) (location2.getLongitude() * 1E6));
+
+        //Set the lat and long to the new E6 values
+        location1.setLatitude(point1.getLatitudeE6() / 1E6);
+        location1.setLongitude(point1.getLongitudeE6() / 1E6);
+        location2.setLatitude(point2.getLatitudeE6() / 1E6);
+        location2.setLongitude(point2.getLongitudeE6() / 1E6);
+
+        distance = (location1.distanceTo(location2)) * METERS_IN_YARD;
+        return distance;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnHome:
+                Intent intent = new Intent(this, HomeScreen.class);
+                startActivity(intent);
+                break;
+            case R.id.btnAverage:
+
+                break;
+            case R.id.btnCenter:
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(currLatLng));
+                break;
+            case R.id.btnStartPnt:
+
+                break;
+        }
+    }
+
+    /**
+     * Check to see if the GPS is enabled
+     */
+    private void isServiceEnabled() {
+        if (!gpsServiceEnabled) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        currLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        if (mListener != null) {
+            mListener.onLocationChanged(location);
+            currLocation = location;
+        }
+        //TODO: adjust the polyline to move with location changes
+//        mMap.animateCamera(CameraUpdateFactory.newLatLng(currLatLng));
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

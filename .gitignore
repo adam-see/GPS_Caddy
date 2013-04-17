@@ -31,6 +31,15 @@ local.properties
 
 
 #################
+## Intellij
+#################
+*.idea
+out/
+*.iml
+*.properties
+*.class
+
+#################
 ## Visual Studio
 #################
 
