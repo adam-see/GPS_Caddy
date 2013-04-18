@@ -10,7 +10,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import com.android.GPS_Caddy.R;
 import android.support.v4.app.FragmentActivity;
@@ -18,8 +17,7 @@ import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 import com.google.android.maps.GeoPoint;
 import org.holoeverywhere.widget.Button;
-
-import java.text.DecimalFormat;
+import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,16 +40,15 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
     private String provider;
     private LatLng currLatLng;
     private Location location;
-    private LocationSource.OnLocationChangedListener mListener;
     private Criteria criteria;
     private Marker setMarker;
     private Location currLocation;
     private Location placedLocation;
     private Location holeLocation;
     private Polyline placedPolyLine;
-    private List<LatLng> pointsToDestination;
+    private TextView distanceTextView;
 
-    private static final int DEF_ZOOM = 18;
+    private static final int DEF_ZOOM = 17;
     private static final int MIN_TIME = 100;
     private static final int MIN_DISTANCE = 1;
 
@@ -83,15 +80,16 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
         btnAverage = (Button) findViewById(R.id.btnAverage);
         btnCenter = (Button) findViewById(R.id.btnCenter);
         btnStartPoint = (Button) findViewById(R.id.btnStartPnt);
+        distanceTextView = (TextView) findViewById(R.id.distanceTextView);
         currLocation = new Location("curr_location");
         placedLocation = new Location("placed_location");
         holeLocation = new Location("hole_location");
-        pointsToDestination = new ArrayList<LatLng>();
 
         btnHome.setTypeface(tf);
         btnAverage.setTypeface(tf);
         btnCenter.setTypeface(tf);
         btnStartPoint.setTypeface(tf);
+        distanceTextView.setTypeface(tf);
 
         btnHome.setOnClickListener(this);
         btnAverage.setOnClickListener(this);
@@ -171,11 +169,16 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
                     setMarker.setSnippet(distanceFormat);
                     setMarker.showInfoWindow();
 
+                    distanceTextView.setText("Marker: " + distanceFormat + " Yds");
+
                     //Move the line with the points
                     List<LatLng> pointsToDestination = new ArrayList<LatLng>();
                     pointsToDestination.add(new LatLng(placedLocation.getLatitude(), placedLocation.getLongitude()));
                     pointsToDestination.add(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()));
                     placedPolyLine.setPoints(pointsToDestination);
+
+                    //Rotate the map to the placed location as north
+                    rotateMap(currLocation, placedLocation, currLatLng);
                 }
                 else {
                     if (currLocation.getLatitude() == 0.0 && currLocation.getLongitude() == 0.0) {
@@ -191,18 +194,55 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
                     setMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Yards").snippet(distanceFormat));
                     setMarker.showInfoWindow();
 
+                    distanceTextView.setText("Marker: " + distanceFormat + " Yds");
+
                     //Draw a line between the points
                     placedPolyLine = mMap.addPolyline(new PolylineOptions().
                             add(latLng, new LatLng(currLocation.getLatitude(), currLocation.getLongitude())).width(3).color(Color.RED));
+
+                    //Rotate the map to the placed location as north
+                    rotateMap(currLocation, placedLocation, currLatLng);
                 }
+            }
+        });
+
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                //To change body of implemented methods use File | Settings | File Templates.
             }
         });
     }
 
     /**
+     * Rotate the map to place the target location as north
+     * @param targetLocation
+     * @param bearingTo
+     * @param targetLatLng
+     */
+    private void rotateMap(Location targetLocation, Location bearingTo, LatLng targetLatLng) {
+        //Find the Bearing from current location to next location
+        float targetBearing = targetLocation.bearingTo(bearingTo);
+        CameraPosition currentPlace = new CameraPosition.Builder()
+                .target(targetLatLng)
+                .bearing(targetBearing).zoom(DEF_ZOOM).build();
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(currentPlace));
+    }
+
+    /**
      * Calculate the distance between two raw locations
-     * @param location1
-     * @param location2
+     * @param location1 The raw location
+     * @param location2 The raw location
      * @return The distance in yards between the two points
      */
     private double getDistance(Location location1, Location location2)
@@ -254,10 +294,25 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
     @Override
     public void onLocationChanged(Location location) {
         currLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-        if (mListener != null) {
-            mListener.onLocationChanged(location);
-            currLocation = location;
+        currLocation = location;
+
+        double distance = getDistance(location, placedLocation);
+        String distanceFormat = String.format("%.1f", distance);
+        if (setMarker != null) {
+            setMarker.remove();
+            setMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(placedLocation.getLatitude(), placedLocation.getLongitude()))
+                    .title("Yards").snippet(distanceFormat));
+            setMarker.showInfoWindow();
+
+            //Move the line with the points
+            List<LatLng> pointsToDestination = new ArrayList<LatLng>();
+            pointsToDestination.add(new LatLng(placedLocation.getLatitude(), placedLocation.getLongitude()));
+            pointsToDestination.add(currLatLng);
+            placedPolyLine.setPoints(pointsToDestination);
+
+            distanceTextView.setText("Marker: " + distanceFormat + " Yds");
         }
+
         //TODO: adjust the polyline to move with location changes
 //        mMap.animateCamera(CameraUpdateFactory.newLatLng(currLatLng));
     }
