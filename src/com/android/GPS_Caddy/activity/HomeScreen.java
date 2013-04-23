@@ -55,14 +55,15 @@ public class HomeScreen extends FragmentActivity implements View.OnClickListener
     public void onClick(View v) {
         switch(v.getId()) {
             case R.id.clubsButton:
-                Toast.makeText(this, "Clubs button pressed", Toast.LENGTH_SHORT).show();
+
                 break;
             case R.id.mapsButton:
-                Intent intent = new Intent(this, MapScreen.class);
-                startActivity(intent);
+                Intent mapsIntent = new Intent(this, MapScreen.class);
+                startActivity(mapsIntent);
                 break;
             case R.id.courseButton:
-
+                Intent courseIntent = new Intent(this, CourseScreen.class);
+                startActivity(courseIntent);
                 break;
             case R.id.videoButton:
 

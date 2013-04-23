@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/mainLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:background="@drawable/course_screen"
+    >
+
+    <include android:id="@+id/footer"
+             layout="@layout/footer"
+             android:layout_width="fill_parent"
+             android:layout_height="wrap_content"/>
+    <ScrollView
+        android:id="@+id/courseScrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#AA000000"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TableLayout
+                android:id="@+id/courseTableLayout"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical"
+                android:stretchColumns="0, 1" >
+            </TableLayout>
+        </LinearLayout>
+    </ScrollView>
+    </RelativeLayout>
+

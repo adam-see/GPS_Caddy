@@ -3,12 +3,15 @@ package com.android.GPS_Caddy.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.view.View;
 import com.android.GPS_Caddy.R;
@@ -20,6 +23,9 @@ import org.holoeverywhere.widget.Button;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created with IntelliJ IDEA.
@@ -47,6 +53,7 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
     private Location holeLocation;
     private Polyline placedPolyLine;
     private TextView distanceTextView;
+    ScheduledExecutorService worker;
 
     private static final int DEF_ZOOM = 17;
     private static final int MIN_TIME = 100;
@@ -84,6 +91,7 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
         currLocation = new Location("curr_location");
         placedLocation = new Location("placed_location");
         holeLocation = new Location("hole_location");
+        worker = Executors.newSingleThreadScheduledExecutor();
 
         btnHome.setTypeface(tf);
         btnAverage.setTypeface(tf);
@@ -177,8 +185,9 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
                     pointsToDestination.add(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()));
                     placedPolyLine.setPoints(pointsToDestination);
 
-                    //Rotate the map to the placed location as north
+                    //Rotate the map to the placed location as north, then adjust the map position
                     rotateMap(currLocation, placedLocation, currLatLng);
+                    moveCenterPointDown();
                 }
                 else {
                     if (currLocation.getLatitude() == 0.0 && currLocation.getLongitude() == 0.0) {
@@ -200,8 +209,9 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
                     placedPolyLine = mMap.addPolyline(new PolylineOptions().
                             add(latLng, new LatLng(currLocation.getLatitude(), currLocation.getLongitude())).width(3).color(Color.RED));
 
-                    //Rotate the map to the placed location as north
+                    //Rotate the map to the placed location as north, then adjust the map position
                     rotateMap(currLocation, placedLocation, currLatLng);
+                    moveCenterPointDown();
                 }
             }
         });
@@ -236,7 +246,17 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
         CameraPosition currentPlace = new CameraPosition.Builder()
                 .target(targetLatLng)
                 .bearing(targetBearing).zoom(DEF_ZOOM).build();
-        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(currentPlace));
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(currentPlace));
+    }
+
+    private void moveCenterPointDown() {
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                mMap.animateCamera(CameraUpdateFactory.scrollBy(0, -400));
+            }
+        }, 1200);
     }
 
     /**

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:layout_width="fill_parent"
+                 android:layout_height="wrap_content">
+    <LinearLayout
+      android:id="@+id/footerLayout"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:layout_alignParentBottom="true">
+
+        <org.holoeverywhere.widget.Button
+            android:id="@+id/btnHome"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/home_button"
+            android:background="@drawable/blue_button"
+            android:textSize="14sp"
+            android:padding="4dp"/>
+
+        <org.holoeverywhere.widget.Button
+            android:id="@+id/btnMap"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/maps_button"
+            android:background="@drawable/blue_button"
+            android:textSize="14sp"
+            android:padding="4dp"/>
+
+        <org.holoeverywhere.widget.Button
+            android:id="@+id/btnClubs"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/clubs_button"
+            android:background="@drawable/blue_button"
+            android:textSize="14sp"
+            android:padding="4dp"/>
+
+        <org.holoeverywhere.widget.Button
+            android:id="@+id/btnVideo"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/swing_button"
+            android:background="@drawable/blue_button"
+            android:textSize="14sp"
+            android:padding="1dp"/>
+    </LinearLayout>
+</RelativeLayout>
