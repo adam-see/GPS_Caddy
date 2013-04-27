@@ -167,52 +167,7 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                if (setMarker != null) {
-                    //Get the two locations for distance
-                    placedLocation.setLatitude(latLng.latitude);
-                    placedLocation.setLongitude(latLng.longitude);
-                    double distance = getDistance(placedLocation, currLocation);
-                    String distanceFormat = String.format("%.1f", distance);
-                    setMarker.setPosition(latLng);
-                    setMarker.setSnippet(distanceFormat);
-                    setMarker.showInfoWindow();
-
-                    distanceTextView.setText("Marker: " + distanceFormat + " Yds");
-
-                    //Move the line with the points
-                    List<LatLng> pointsToDestination = new ArrayList<LatLng>();
-                    pointsToDestination.add(new LatLng(placedLocation.getLatitude(), placedLocation.getLongitude()));
-                    pointsToDestination.add(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()));
-                    placedPolyLine.setPoints(pointsToDestination);
-
-                    //Rotate the map to the placed location as north, then adjust the map position
-                    rotateMap(currLocation, placedLocation, currLatLng);
-                    moveCenterPointDown();
-                }
-                else {
-                    if (currLocation.getLatitude() == 0.0 && currLocation.getLongitude() == 0.0) {
-                        currLocation = location;
-                    }
-                    //Get the two locations for distance
-                    placedLocation.setLatitude(latLng.latitude);
-                    placedLocation.setLongitude(latLng.longitude);
-
-                    //Calculate the distance in yards and set the marker
-                    double distance = getDistance(placedLocation, currLocation);
-                    String distanceFormat = String.format("%.1f", distance);
-                    setMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Yards").snippet(distanceFormat));
-                    setMarker.showInfoWindow();
-
-                    distanceTextView.setText("Marker: " + distanceFormat + " Yds");
-
-                    //Draw a line between the points
-                    placedPolyLine = mMap.addPolyline(new PolylineOptions().
-                            add(latLng, new LatLng(currLocation.getLatitude(), currLocation.getLongitude())).width(3).color(Color.RED));
-
-                    //Rotate the map to the placed location as north, then adjust the map position
-                    rotateMap(currLocation, placedLocation, currLatLng);
-                    moveCenterPointDown();
-                }
+                handleMapClick(latLng);
             }
         });
 
@@ -234,6 +189,55 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
         });
     }
 
+    private void handleMapClick(LatLng latLng) {
+        if (setMarker != null) {
+            //Get the two locations for distance
+            placedLocation.setLatitude(latLng.latitude);
+            placedLocation.setLongitude(latLng.longitude);
+            double distance = getDistance(placedLocation, currLocation);
+            String distanceFormat = String.format("%.1f", distance);
+            setMarker.setPosition(latLng);
+            setMarker.setSnippet(distanceFormat);
+            setMarker.showInfoWindow();
+
+            distanceTextView.setText("Marker: " + distanceFormat + " Yds");
+
+            //Move the line with the points
+            List<LatLng> pointsToDestination = new ArrayList<LatLng>();
+            pointsToDestination.add(new LatLng(placedLocation.getLatitude(), placedLocation.getLongitude()));
+            pointsToDestination.add(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()));
+            placedPolyLine.setPoints(pointsToDestination);
+
+            //Rotate the map to the placed location as north, then adjust the map position
+            rotateMap(currLocation, placedLocation, currLatLng);
+            moveCenterPointDown();
+        }
+        else {
+            if (currLocation.getLatitude() == 0.0 && currLocation.getLongitude() == 0.0) {
+                currLocation = location;
+            }
+            //Get the two locations for distance
+            placedLocation.setLatitude(latLng.latitude);
+            placedLocation.setLongitude(latLng.longitude);
+
+            //Calculate the distance in yards and set the marker
+            double distance = getDistance(placedLocation, currLocation);
+            String distanceFormat = String.format("%.1f", distance);
+            setMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Yards").snippet(distanceFormat));
+            setMarker.showInfoWindow();
+
+            distanceTextView.setText("Marker: " + distanceFormat + " Yds");
+
+            //Draw a line between the points
+            placedPolyLine = mMap.addPolyline(new PolylineOptions().
+                    add(latLng, new LatLng(currLocation.getLatitude(), currLocation.getLongitude())).width(3).color(Color.RED));
+
+            //Rotate the map to the placed location as north, then adjust the map position
+            rotateMap(currLocation, placedLocation, currLatLng);
+            moveCenterPointDown();
+        }
+    }
+
     /**
      * Rotate the map to place the target location as north
      * @param targetLocation
@@ -250,7 +254,6 @@ public class MapScreen extends FragmentActivity implements View.OnClickListener,
     }
 
     private void moveCenterPointDown() {
-
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             public void run() {

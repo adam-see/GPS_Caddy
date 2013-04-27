@@ -17,7 +17,8 @@ public class CourseScreen extends Footer {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ViewGroup viewGroup = (ViewGroup) findViewById(R.id.footer);
-        ViewGroup.inflate(CourseScreen.this, R.layout.course_selection_screen, viewGroup);
+        setContentView(R.layout.course_selection_screen);
+//        ViewGroup viewGroup = (ViewGroup) findViewById(R.id.footer);
+//        ViewGroup.inflate(CourseScreen.this, R.layout.course_selection_screen, viewGroup);
     }
 }

@@ -1,28 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/mainLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical"
-        android:background="@drawable/course_screen"
-    >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainLayout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@drawable/course_screen"
+    android:layout_gravity="top">
+
 
     <include android:id="@+id/footer"
-             layout="@layout/footer"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content"/>
+        layout="@layout/footer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"/>
+
     <ScrollView
         android:id="@+id/courseScrollView"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:background="#AA000000"
-        android:scrollbars="vertical">
+        android:scrollbars="vertical"
+        android:layout_marginTop="20dp"
+        android:layout_above="@id/footer"
+        android:layout_marginBottom="20dp">
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:clickable="false">
 
             <TableLayout
                 android:id="@+id/courseTableLayout"
@@ -33,5 +40,5 @@
             </TableLayout>
         </LinearLayout>
     </ScrollView>
-    </RelativeLayout>
+</RelativeLayout>
 
