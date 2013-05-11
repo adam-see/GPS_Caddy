@@ -35,6 +35,7 @@ local.properties
 #################
 *.idea
 out/
+gen/
 *.iml
 *.properties
 *.class

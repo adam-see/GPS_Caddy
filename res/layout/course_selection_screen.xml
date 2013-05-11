@@ -36,7 +36,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:orientation="vertical"
-                android:stretchColumns="0, 1" >
+                android:stretchColumns="*" >
             </TableLayout>
         </LinearLayout>
     </ScrollView>

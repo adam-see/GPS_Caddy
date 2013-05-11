@@ -52,8 +52,7 @@ public class RestClient {
         return sb.toString();
     }
 
-    public static void parseJson(String url)
-    {
+    public static <T> T parseJson(String url, Class<T> type) {
 
         HttpClient httpclient = new DefaultHttpClient();
 
@@ -76,9 +75,9 @@ public class RestClient {
 
                 // A Simple JSON Response Read
                 InputStream instream = entity.getContent();
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
                 String result = convertStreamToString(instream);
-                CourseContainer courseContainer = new Gson().fromJson(result, CourseContainer.class);
+                Gson gson = new Gson();
+                return gson.fromJson(result, type);
             }
 
         } catch (ClientProtocolException e) {
@@ -92,5 +91,6 @@ public class RestClient {
 //            e.printStackTrace();
 //        }
         }
+        return null;
     }
 }
